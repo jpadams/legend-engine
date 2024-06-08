@@ -1,0 +1,6 @@
+{
+  "name": "legend-engine",
+  "sdk": "github.com/dagger/dagger/sdk/typescript/standalone@2cbda9c7547809a35eb93ff7677e5bab4afd00c1",
+  "source": "dagger",
+  "engineVersion": "v0.11.6"
+}
