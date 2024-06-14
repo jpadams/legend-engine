@@ -1,12 +1,6 @@
 {
   "name": "legend-engine",
-  "sdk": "github.com/dagger/dagger/sdk/typescript/standalone@2cbda9c7547809a35eb93ff7677e5bab4afd00c1",
-  "dependencies": [
-    {
-      "name": "java",
-      "source": "github.com/jcsirot/daggerverse/java@c591e9e0b99def2fc8a67bb090fca5cd06cf6a1d"
-    }
-  ],
+  "sdk": "typescript",
   "source": "dagger",
-  "engineVersion": "v0.11.6"
+  "engineVersion": "v0.11.7"
 }

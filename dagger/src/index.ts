@@ -1,41 +1,50 @@
-/**
- * A generated module for LegendEngine functions
- *
- * This module has been generated via dagger init and serves as a reference to
- * basic module structure as you get started with Dagger.
- *
- * Two functions have been pre-created. You can modify, delete, or add to them,
- * as needed. They demonstrate usage of arguments and return types using simple
- * echo and grep commands. The functions can be called from the dagger CLI or
- * from one of the SDKs.
- *
- * The first line in this comment block is a short description line and the
- * rest is a long description with more detail on the module's purpose or usage,
- * if appropriate. All modules should have a short description.
- */
-import { dag, Container, Directory, object, func } from "@dagger.io/dagger"
+import {
+    dag,
+    Container,
+    Directory,
+    object,
+    func,
+} from "@dagger.io/dagger"
 
 @object()
 class LegendEngine {
   /**
-   * Returns a container that echoes whatever string argument is provided
+   * Returns a container for Legend Engine dev
    */
   @func()
-  containerEcho(stringArg: string): Container {
-    return dag.container().from("alpine:latest").withExec(["echo", stringArg])
-  }
+  build(source: Directory): Container {
+    const ubuntuImage = "ubuntu:jammy-20240530"
 
-  /**
-   * Returns lines that match a pattern in the files of the provided Directory
-   */
-  @func()
-  async grepDir(directoryArg: Directory, pattern: string): Promise<string> {
     return dag
-      .container()
-      .from("alpine:latest")
-      .withMountedDirectory("/mnt", directoryArg)
-      .withWorkdir("/mnt")
-      .withExec(["grep", "-R", pattern, "."])
-      .stdout()
+        .container()//{platform: "linux/amd64" as Platform})
+        .from(ubuntuImage)
+        .withExec([
+            "apt",
+            "update",
+        ])
+        .withExec([
+            "apt",
+            "install",
+            "openjdk-11-jdk",
+            "maven",
+            "curl",
+            "-y",
+        ])
+        // maven deps cache
+        // did not seem worth it to cache target dirs as build often broke
+        .withMountedCache(
+            "/root/.m2/repository",
+            dag.cacheVolume("legend-engine-mvn-cache")
+        )
+        // mount source
+        .withMountedDirectory("/src", source)
+        // needs 8GB of heap to build locally
+        .withEnvVariable("MAVEN_OPTS", "-Xmx8192m")
+        .withWorkdir("/src")
+        // other commands to remember
+        // .withExec(["mvn", "clean", "install", "-DskipTests"])
+        // .withExec(["mvn", "install", "-e", "-X", "-DskipTests"])
+        // .withExec(["mvn", "-T", "1C", "install", "-DskipTests", "--offline"])
+        .withExec(["mvn", "install", "-DskipTests"])
   }
 }
